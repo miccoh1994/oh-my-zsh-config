@@ -55,7 +55,7 @@ prompt_segment() {
   [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
   [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
   if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
-    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%}"
+    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
   else
     echo -n "%{$bg%}%{$fg%} "
   fi
@@ -76,6 +76,15 @@ prompt_end() {
 
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
+
+# Context: user@hostname (who am I and where am I)
+prompt_context() {
+  # Custom (Random emoji)
+  : $RANDOM
+  emojis=("⚡️" "🔥" "💀" "😎" "🦄" "🌈" "🍻" "🚀" "💡" "🎉" "✊" "Ⓜ️" "🌙" "🧬" "🍾" "🐳")
+  RAND_EMOJI_N=$RANDOM % ${#emojis[@]} + 1
+  prompt_segment blue blue "${emojis[$RAND_EMOJI_N]}"
+}
 
 # Git: branch/detached head, dirty status
 prompt_git() {
@@ -201,65 +210,49 @@ prompt_virtualenv() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}🔥"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡️"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
 
-  if [[ -n "$symbols" ]]; then
-   prompt_segment
-   echo -n "%{%F{#282a36}%}%K{#282a36%}"
-   echo -n "$symbols "
-  fi
+  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
 }
 
 # get branch 
 _git_repo_name() { 
     gittopdir=$(git rev-parse --git-dir 2> /dev/null)
     if [[ "foo$gittopdir" == "foo.git" ]]; then
-        echo -n "%{%F{blue}%}"
-        echo -n "  \uf752 `basename $(pwd)`"
+        echo `basename $(pwd)`
     elif [[ "foo$gittopdir" != "foo" ]]; then
-        echo -n "%{%F{blue}%}"
-        echo -n " \uf752 `dirname $gittopdir | xargs basename`/$(git rev-parse --show-prefix 2> /dev/null)"
+        echo `dirname $gittopdir | xargs basename`
     fi
 }
 
 prompt_time() {
-  echo -n " $(_git_repo_name) "
-  echo -n "%{%K{#282a36}%}%{%F{green}%}"
-  echo -n "\uf941"
-  echo -n "%{%K{#282a36}%}%{%F{white}%}"
-  echo -n "$(date '+%H:%M:%S')"
-  echo -n "%{%K{#282a36}%}%{%F{green}%}"
-  echo -n "\uf93f"
-
-}
-
-
-emojis=("💀" "🦄" "🌈" "🚀" "💡" "🎉" "✊" "🌙" "🐳" "🦹" "🦸" "🧭" "🥸" "🐻" "🦭" "🦫" "🦧")
-prompt_context() {
-  # Custom (Random emoji)
-  N=${#emojis[@]}
-  (( N = (RANDOM%N) + 1 ))
-  prompt_segment blue blue ${emojis[$N]}
+  echo -n "%{%F{blue}%}"
+  echo -n "\ue0b2"
+  echo -n "%{%K{blue}%}%{%F{black}%}"
+  echo -n "$(_git_repo_name)"
+  echo -n " "
+  echo -n "$(date '+%X ')"
 }
 
 ## Main prompt
 build_prompt() {
   RETVAL=$?
   prompt_virtualenv
-  prompt_context RANDOM
+  prompt_context
   prompt_dir
   prompt_git
   prompt_bzr
   prompt_hg
-  prompt_status
   prompt_end
 }
 
 build_right_prompt() {
   RETVAL=$?
+  prompt_status
   prompt_time
 }
-PROMPT='%{%f%b%k%}$(build_prompt)%$RANDOM}'
+
+PROMPT='%{%f%b%k%}$(build_prompt) '
 RPROMPT='$(build_right_prompt)'

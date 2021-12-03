@@ -7,5 +7,6 @@ config_dir="`dirname $0`"
 plugins=(
     git
     web-search
+    sudo
 )
 source $config_dir/plugins/kill-node.zsh

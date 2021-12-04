@@ -225,11 +225,16 @@ _git_repo_name() {
 }
 
 prompt_time() {
+  if [[ -n $SSH_CONNECTION ]]; then
+  echo -n "%{%F{green}%}"
+  echo -n "\uf817"
+
+fi
   echo -n " $(_git_repo_name) "
   echo -n "%{%K{#282a36}%}%{%F{green}%}"
   echo -n "\uf941"
   echo -n "%{%K{#282a36}%}%{%F{white}%}"
-  echo -n "$(date '+%H:%M:%S')"
+  echo -n "$(date '+%H:%M:%S') "
   echo -n "%{%K{#282a36}%}%{%F{green}%}"
   echo -n "\uf93f"
 

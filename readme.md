@@ -5,3 +5,7 @@
     ROOT directory (recommended)
 
 wget -qO- https://git.io/papirus-icon-theme-install | sh
+
+# Link theme file to themes dir
+
+ln ./themes/lima-agnoster.zsh-theme ~/.oh-my-zsh/themes/lima-agnoster.zsh-theme

@@ -10,3 +10,4 @@ plugins=(
     sudo
 )
 source $config_dir/plugins/kill-node.zsh
+source $config_dir/plugins/fancy-alt-z.zsh
